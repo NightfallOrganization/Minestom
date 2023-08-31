@@ -97,3 +97,11 @@ dependencies {
     api("io.github.jglrxavpok.hephaistos:gson:${libs.versions.hephaistos.get()}")
 }
 
+publishing {
+    repositories {
+        maven("https://nexus.darkcube.eu/repository/darkcube/") {
+            name = "DarkCube"
+            credentials(PasswordCredentials::class)
+        }
+    }
+}
