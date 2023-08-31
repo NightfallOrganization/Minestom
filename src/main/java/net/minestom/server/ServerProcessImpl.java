@@ -231,7 +231,7 @@ final class ServerProcessImpl implements ServerProcess {
         LOGGER.info(MinecraftServer.getBrandName() + " server started successfully.");
 
         if (MinecraftServer.isTerminalEnabled()) {
-            MinestomTerminal.start();
+            MinestomTerminal.start(MinecraftServer.getTerminalPrompt());
         }
         // Stop the server on SIGINT
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
