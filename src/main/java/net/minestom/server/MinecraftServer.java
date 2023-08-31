@@ -29,6 +29,7 @@ import net.minestom.server.world.DimensionTypeManager;
 import net.minestom.server.world.biomes.BiomeManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.io.IOException;
@@ -66,6 +67,7 @@ public final class MinecraftServer {
     private static int entityViewDistance = Integer.getInteger("minestom.entity-view-distance", 5);
     private static int compressionThreshold = 256;
     private static boolean terminalEnabled = System.getProperty("minestom.terminal.disabled") == null;
+    private static String terminalPrompt = System.getProperty("minestom.terminal.prompt", "> ");
     private static String brandName = "Minestom";
     private static Difficulty difficulty = Difficulty.NORMAL;
 
@@ -286,6 +288,15 @@ public final class MinecraftServer {
         MinecraftServer.terminalEnabled = enabled;
     }
 
+    public static @Nullable String getTerminalPrompt() {
+        return terminalPrompt;
+    }
+
+    public static void setTerminalPrompt(@Nullable String prompt) {
+        Check.stateCondition(serverProcess.isAlive(), "Terminal settings may not be changed after starting the server.");
+        MinecraftServer.terminalPrompt = prompt;
+    }
+
     public static DimensionTypeManager getDimensionTypeManager() {
         return serverProcess.dimension();
     }
@@ -311,6 +322,13 @@ public final class MinecraftServer {
     }
 
     /**
+     * Stops this server properly (saves if needed, kicking players, etc.)
+     */
+    public static void stopCleanly() {
+        serverProcess.stop();
+    }
+
+    /**
      * Starts the server.
      * <p>
      * It should be called after {@link #init()} and probably your own initialization code.
@@ -325,12 +343,5 @@ public final class MinecraftServer {
 
     public void start(@NotNull String address, int port) {
         start(new InetSocketAddress(address, port));
-    }
-
-    /**
-     * Stops this server properly (saves if needed, kicking players, etc.)
-     */
-    public static void stopCleanly() {
-        serverProcess.stop();
     }
 }

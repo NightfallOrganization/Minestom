@@ -6,13 +6,8 @@ import net.minestom.server.command.builder.suggestion.Suggestion;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.listener.TabCompleteListener;
 import org.jetbrains.annotations.ApiStatus;
-import org.jline.reader.Candidate;
-import org.jline.reader.Completer;
-import org.jline.reader.EndOfFileException;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.ParsedLine;
-import org.jline.reader.UserInterruptException;
+import org.jetbrains.annotations.Nullable;
+import org.jline.reader.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -20,13 +15,13 @@ import java.io.IOException;
 import java.util.List;
 
 public class MinestomTerminal {
-    private static final String PROMPT = "> ";
-    private static volatile Terminal terminal;
     static volatile LineReader reader;
+    private static volatile Terminal terminal;
     private static volatile boolean running = false;
 
     @ApiStatus.Internal
-    public static void start() {
+    public static void start(@Nullable String prompt) {
+        final String finalPrompt = prompt == null || prompt.trim().isEmpty() ? null : prompt;
         final Thread thread = new Thread(null, () -> {
             try {
                 terminal = TerminalBuilder.terminal();
@@ -42,7 +37,7 @@ public class MinestomTerminal {
             while (running) {
                 String command;
                 try {
-                    command = reader.readLine(PROMPT);
+                    command = reader.readLine(finalPrompt);
                     var commandManager = MinecraftServer.getCommandManager();
                     commandManager.execute(commandManager.getConsoleSender(), command);
                 } catch (UserInterruptException e) {
