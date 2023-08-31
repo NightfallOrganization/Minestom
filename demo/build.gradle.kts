@@ -4,14 +4,12 @@ plugins {
     application
     id("minestom.common-conventions")
     id("minestom.native-conventions")
-    id("com.github.johnrengelman.shadow") version ("7.1.1")
+    id("com.github.johnrengelman.shadow") version ("8.1.1")
 }
 
 application {
     mainClass.set("net.minestom.demo.Main")
     // This is included because Shadow is buggy. Wait for https://github.com/johnrengelman/shadow/issues/613 to befixed.
-    @Suppress("DEPRECATION")
-    mainClassName = "net.minestom.demo.Main"
 }
 
 dependencies {

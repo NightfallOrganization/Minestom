@@ -16,7 +16,7 @@ jobs:
       with:
         java-version: 17
     - name: Run java checkstyle
-      uses: nikitasavinov/checkstyle-action@0.3.1
+      uses: nikitasavinov/checkstyle-action@0.6.0
       with:
         # Report level for reviewdog [info,warning,error]
         level: info
