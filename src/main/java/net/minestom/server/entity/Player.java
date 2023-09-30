@@ -130,24 +130,24 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
      * in the range of {@link MinecraftServer#getChunkViewDistance()}
      */
     private Vec chunksLoadedByClient = Vec.ZERO;
-    final IntegerBiConsumer chunkAdder = (chunkX, chunkZ) -> {
-        // Load new chunks
-        this.instance.loadOptionalChunk(chunkX, chunkZ).thenAccept(chunk -> {
-            try {
-                if (chunk != null) {
-                    chunk.sendChunk(this);
-                    EventDispatcher.call(new PlayerChunkLoadEvent(this, chunkX, chunkZ));
-                }
-            } catch (Exception e) {
-                MinecraftServer.getExceptionManager().handleException(e);
-            }
-        });
-    };
-    final IntegerBiConsumer chunkRemover = (chunkX, chunkZ) -> {
-        // Unload old chunks
-        sendPacket(new UnloadChunkPacket(chunkX, chunkZ));
-        EventDispatcher.call(new PlayerChunkUnloadEvent(this, chunkX, chunkZ));
-    };
+//    final IntegerBiConsumer chunkAdder = (chunkX, chunkZ) -> {
+//        // Load new chunks
+//        this.instance.loadOptionalChunk(chunkX, chunkZ).thenAccept(chunk -> {
+//            try {
+//                if (chunk != null) {
+//                    chunk.sendChunk(this);
+//                    EventDispatcher.call(new PlayerChunkLoadEvent(this, chunkX, chunkZ));
+//                }
+//            } catch (Exception e) {
+//                MinecraftServer.getExceptionManager().handleException(e);
+//            }
+//        });
+//    };
+//    final IntegerBiConsumer chunkRemover = (chunkX, chunkZ) -> {
+//        // Unload old chunks
+//        sendPacket(new UnloadChunkPacket(chunkX, chunkZ));
+//        EventDispatcher.call(new PlayerChunkUnloadEvent(this, chunkX, chunkZ));
+//    };
 
     private final AtomicInteger teleportId = new AtomicInteger();
     private int receivedTeleportId;
@@ -532,7 +532,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
         final int chunkX = position.chunkX();
         final int chunkZ = position.chunkZ();
         // Clear all viewable chunks
-        ChunkUtils.forChunksInRange(chunkX, chunkZ, MinecraftServer.getChunkViewDistance(), chunkRemover);
+//        ChunkUtils.forChunksInRange(chunkX, chunkZ, MinecraftServer.getChunkViewDistance(), chunkRemover);
         // Remove from the tab-list
         PacketUtils.broadcastPacket(getRemovePlayerToList());
 
@@ -656,8 +656,8 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
                              boolean firstSpawn, boolean dimensionChange, boolean updateChunks) {
         if (!firstSpawn && !dimensionChange) {
             // Player instance changed, clear current viewable collections
-            if (updateChunks)
-                ChunkUtils.forChunksInRange(spawnPosition, MinecraftServer.getChunkViewDistance(), chunkRemover);
+//            if (updateChunks)
+//                ChunkUtils.forChunksInRange(spawnPosition, MinecraftServer.getChunkViewDistance(), chunkRemover);
         }
 
         if (dimensionChange) sendDimension(instance.getDimensionType());
@@ -670,7 +670,7 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
             chunksLoadedByClient = new Vec(chunkX, chunkZ);
             chunkUpdateLimitChecker.addToHistory(getChunk());
             sendPacket(new UpdateViewPositionPacket(chunkX, chunkZ));
-            ChunkUtils.forChunksInRange(spawnPosition, MinecraftServer.getChunkViewDistance(), chunkAdder);
+//            ChunkUtils.forChunksInRange(spawnPosition, MinecraftServer.getChunkViewDistance(), chunkAdder);
         }
 
         synchronizePosition(true); // So the player doesn't get stuck
@@ -2098,8 +2098,8 @@ public class Player extends LivingEntity implements CommandSender, Localizable, 
             final int newZ = newChunk.getChunkZ();
             final Vec old = chunksLoadedByClient;
             sendPacket(new UpdateViewPositionPacket(newX, newZ));
-            ChunkUtils.forDifferingChunksInRange(newX, newZ, (int) old.x(), (int) old.z(),
-                    MinecraftServer.getChunkViewDistance(), chunkAdder, chunkRemover);
+//            ChunkUtils.forDifferingChunksInRange(newX, newZ, (int) old.x(), (int) old.z(),
+//                    MinecraftServer.getChunkViewDistance(), chunkAdder, chunkRemover);
             this.chunksLoadedByClient = new Vec(newX, newZ);
         }
     }
