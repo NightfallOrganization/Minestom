@@ -16,6 +16,8 @@ indra {
     apache2License()
 
     configurePublications {
+        groupId = "net.minestom"
+        version = "1.0-SNAPSHOT"
         pom {
             developers {
                 developer {
