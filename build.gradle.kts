@@ -116,9 +116,9 @@ tasks {
         replaceToken("\"&ARTIFACT\"", if (artifact == null) "null" else "\"${artifact}\"", gitFile)
     }
 
-    nexusPublishing{
-        useStaging.set(true)
-        this.packageGroup.set("net.minestom")
+    nexusPublishing {
+        useStaging.set(false)
+        this.packageGroup.set("eu.darkcube")
 
         transitionCheckOptions {
             maxRetries.set(360) // 1 hour
@@ -126,8 +126,8 @@ tasks {
         }
 
         repositories.sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            nexusUrl.set(uri("https://nexus.darkcube.eu/repository/darkcube/"))
+            snapshotRepositoryUrl.set(uri("https://nexus.darkcube.eu/repository/darkcube/"))
 
             if (System.getenv("SONATYPE_USERNAME") != null) {
                 username.set(System.getenv("SONATYPE_USERNAME"))
@@ -137,9 +137,8 @@ tasks {
     }
 
     publishing.publications.create<MavenPublication>("maven") {
-        groupId = "net.minestom"
-        // todo: decide on publishing scheme
-        artifactId = if (channel == "snapshot") "minestom-snapshots" else "minestom-snapshots"
+        groupId = "eu.darkcube"
+        artifactId = if (channel == "snapshot") "minestom-snapshots" else "minestom"
         version = project.version.toString()
 
         from(project.components["java"])
@@ -147,7 +146,7 @@ tasks {
         pom {
             name.set(this@create.artifactId)
             description.set(shortDescription)
-            url.set("https://github.com/minestom/minestom")
+            url.set("https://github.com/NightfallOrganization/Minestom")
 
             licenses {
                 license {
@@ -165,23 +164,22 @@ tasks {
                     name.set("Matt Worzala")
                     email.set("matt@hollowcube.dev")
                 }
-            }
-
-            issueManagement {
-                system.set("GitHub")
-                url.set("https://github.com/minestom/minestom/issues")
+                developer {
+                    id.set("DasBabyPixel")
+                    email.set("dasbabypixel@gmail.com")
+                }
             }
 
             scm {
-                connection.set("scm:git:git://github.com/minestom/minestom.git")
-                developerConnection.set("scm:git:git@github.com:minestom/minestom.git")
-                url.set("https://github.com/minestom/minestom")
+                connection.set("scm:git:git://github.com/NightfallOrganization/Minestom.git")
+                developerConnection.set("scm:git:git@github.com:NightfallOrganization/Minestom.git")
+                url.set("https://github.com/NightfallOrganization/Minestom)")
                 tag.set("HEAD")
             }
 
             ciManagement {
                 system.set("Github Actions")
-                url.set("https://github.com/minestom/minestom/actions")
+                url.set("https://github.com/NightfallOrganization/Minestom/actions")
             }
         }
     }
