@@ -130,8 +130,8 @@ tasks {
         }
 
         repositories.sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            nexusUrl.set(uri("https://nexus.darkcube.eu/repository/darkcube/"))
+            snapshotRepositoryUrl.set(uri("https://nexus.darkcube.eu/repository/darkcube/"))
 
             if (System.getenv("SONATYPE_USERNAME") != null) {
                 username.set(System.getenv("SONATYPE_USERNAME"))
