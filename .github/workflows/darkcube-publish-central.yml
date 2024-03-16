@@ -3,7 +3,7 @@ name: Build and deploy to central repository on darkcube
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
