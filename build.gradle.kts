@@ -120,8 +120,8 @@ tasks {
         replaceToken("\"&ARTIFACT\"", if (artifact == null) "null" else "\"${artifact}\"", gitFile)
     }
 
-    nexusPublishing{
-        useStaging.set(true)
+    nexusPublishing {
+        useStaging.set(false)
         this.packageGroup.set("eu.darkcube")
 
         transitionCheckOptions {
