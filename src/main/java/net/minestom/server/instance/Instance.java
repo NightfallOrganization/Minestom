@@ -22,6 +22,7 @@ import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.instance.block.BlockFace;
 import net.minestom.server.instance.block.BlockHandler;
+import net.minestom.server.instance.chunksystem.ChunkManager;
 import net.minestom.server.instance.generator.Generator;
 import net.minestom.server.instance.light.Light;
 import net.minestom.server.network.packet.server.play.BlockActionPacket;
@@ -145,6 +146,10 @@ public abstract class Instance implements Block.Getter, Block.Setter,
         }
     }
 
+    public ChunkManager getChunkManager() {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Schedules a task to be run during the next instance tick.
      *
@@ -190,8 +195,8 @@ public abstract class Instance implements Block.Getter, Block.Setter,
      * Does call {@link net.minestom.server.event.player.PlayerBlockBreakEvent}
      * and send particle packets
      *
-     * @param player        the {@link Player} who break the block
-     * @param blockPosition the position of the broken block
+     * @param player         the {@link Player} who break the block
+     * @param blockPosition  the position of the broken block
      * @param doBlockUpdates true to do block updates, false otherwise
      * @return true if the block has been broken, false if it has been cancelled
      */
@@ -327,6 +332,7 @@ public abstract class Instance implements Block.Getter, Block.Setter,
 
     /**
      * Gets the chunk supplier of the instance.
+     *
      * @return the chunk supplier of the instance
      */
     public abstract ChunkSupplier getChunkSupplier();
@@ -406,6 +412,7 @@ public abstract class Instance implements Block.Getter, Block.Setter,
 
     /**
      * Gets the instance dimension name.
+     *
      * @return the dimension name of the instance
      */
     public @NotNull String getDimensionName() {
@@ -781,7 +788,8 @@ public abstract class Instance implements Block.Getter, Block.Setter,
         int coordY = ChunkUtils.toSectionRelativeCoordinate(blockY);
         int coordZ = ChunkUtils.toSectionRelativeCoordinate(blockZ);
 
-        if (light.requiresUpdate()) LightingChunk.relightSection(chunk.getInstance(), chunk.chunkX, sectionCoordinate, chunk.chunkZ);
+        if (light.requiresUpdate())
+            LightingChunk.relightSection(chunk.getInstance(), chunk.chunkX, sectionCoordinate, chunk.chunkZ);
         return light.getLevel(coordX, coordY, coordZ);
     }
 
@@ -796,7 +804,8 @@ public abstract class Instance implements Block.Getter, Block.Setter,
         int coordY = ChunkUtils.toSectionRelativeCoordinate(blockY);
         int coordZ = ChunkUtils.toSectionRelativeCoordinate(blockZ);
 
-        if (light.requiresUpdate()) LightingChunk.relightSection(chunk.getInstance(), chunk.chunkX, sectionCoordinate, chunk.chunkZ);
+        if (light.requiresUpdate())
+            LightingChunk.relightSection(chunk.getInstance(), chunk.chunkX, sectionCoordinate, chunk.chunkZ);
         return light.getLevel(coordX, coordY, coordZ);
     }
 }
