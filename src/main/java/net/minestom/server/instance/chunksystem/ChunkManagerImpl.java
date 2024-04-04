@@ -7,6 +7,7 @@ import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.generator.Generator;
+import net.minestom.server.utils.async.AsyncUtils;
 import net.minestom.server.utils.chunk.ChunkSupplier;
 import net.minestom.server.utils.chunk.ChunkUtils;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +68,7 @@ public class ChunkManagerImpl implements ChunkManager {
         this.chunkSupplier = chunkSupplier;
         this.chunkGenerator = chunkGenerator;
         this.exceptionManager = exceptionManager;
-        this.generationSystem = new GenerationSystem(this, exceptionManager);
+        this.generationSystem = new GenerationSystemImpl(this, exceptionManager);
     }
 
     private static void loopHint() {
@@ -87,6 +88,10 @@ public class ChunkManagerImpl implements ChunkManager {
 
     @Override
     public @NotNull ChunkAndClaim addClaim(int chunkX, int chunkZ, int radius, int priority) {
+        // Use concurrent structure and busy-waits (with hints to not waste power)
+        // Reason for this is we want claims to be as fast as possible. There may be hundreds of claim changes by players alone,
+        // if the server wants to modify some other changes, this can quickly add up. Goal is to allow this to be called from
+        // multiple threads many thousand times a second
         final long key = ChunkUtils.getChunkIndex(chunkX, chunkZ);
         var entry = chunks.get(key);
         if (entry == null) {
@@ -105,7 +110,7 @@ public class ChunkManagerImpl implements ChunkManager {
                 // busy wait seems best, should only be nanoseconds before the state is something we can work with.
                 // state can be something other than STATE_INITIALIZED if a fully loaded chunk is being claimed right after being unclaimed.
                 if (entry.state(STATE_INITIALIZED, STATE_UNSAFE)) { // try lock entry
-                    // use entry#highestPriorityClaim instead of `claim`. Method call is very fast and runs approx in O(1).
+                    // use entry#highestPriorityClaim instead of `claim`. Method call is very fast and runs approx in constant time.
                     // if someone else comes along and also adds a claim, they might not have to regenerate the task,
                     // because we already selected their claim
                     entry.task = generationSystem.publishUpdate(entry, entry.highestPriorityClaim());
@@ -169,8 +174,33 @@ public class ChunkManagerImpl implements ChunkManager {
     }
 
     @Override
-    public @NotNull CompletableFuture<Void> removeClaim(int chunkX, int chunkZ, ChunkClaim claim) {
-        return null;
+    public @NotNull CompletableFuture<Void> removeClaim(int chunkX, int chunkZ, @NotNull ChunkClaim claim) {
+        if (!(claim instanceof ChunkClaimImpl claimImpl)) throw new IllegalArgumentException("Invalid claim");
+        final var key = ChunkUtils.getChunkIndex(chunkX, chunkZ);
+        var entry = chunks.get(key);
+        if (entry == null) {
+            throw new IllegalArgumentException("Chunk(" + chunkX + "," + chunkZ + ") is not loaded");
+        }
+        final var allClaimsRemoved = entry.removeClaim(claimImpl);
+        if (allClaimsRemoved) {
+            while (true) {
+                if (entry.state(STATE_GENERATING, STATE_UNSAFE)) {
+                    final var entryTask = entry.task;
+                    if (entryTask == null) throw new Error("GeneratorTask mustn't be null but is");
+                    entryTask.cancel();
+                    entry.task = null;
+                    entry.state(STATE_INITIALIZED);
+                    break;
+                } else if (entry.state(STATE_GENERATED, STATE_UNSAFE)) {
+                    // Someone might have added a claim after we removed the last claim
+                    // we can safely check here, because we are in STATE_UNSAFE
+                    boolean hasClaims = entry.hasClaims();
+
+                }
+            }
+        }
+
+        return AsyncUtils.VOID_FUTURE;
     }
 
     public static class Entry {
@@ -223,6 +253,10 @@ public class ChunkManagerImpl implements ChunkManager {
                 return release();
             }
             throw new IllegalStateException("Claim not found: " + claim);
+        }
+
+        boolean hasClaims() {
+            return count != 0;
         }
 
         /**

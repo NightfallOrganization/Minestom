@@ -181,7 +181,7 @@ class ChunkManagerImpl implements ChunkManager {
     }
 
     @Override
-    public @NotNull CompletableFuture<Void> removeClaim(int chunkX, int chunkZ, ChunkClaim claim) {
+    public @NotNull CompletableFuture<Void> removeClaim(int chunkX, int chunkZ, @NotNull ChunkClaim claim) {
         if (!(claim instanceof ChunkClaimImpl claimImpl)) throw new IllegalArgumentException("Invalid claim");
         final var key = getChunkIndex(chunkX, chunkZ);
         var entry = chunks.get(key);

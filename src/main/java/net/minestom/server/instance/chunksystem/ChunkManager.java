@@ -26,7 +26,7 @@ public interface ChunkManager {
      * @param chunkZ    the chunk Z, in chunk coordinate space
      * @param operation the chunk operation
      */
-    default void operateOnChunk(int chunkX, int chunkZ, Consumer<Chunk> operation) {
+    default void operateOnChunk(int chunkX, int chunkZ, @NotNull Consumer<@NotNull Chunk> operation) {
         var chunkAndClaim = addClaim(chunkX, chunkZ, 0);
         chunkAndClaim.chunkFuture().thenAccept(chunk -> {
             operation.accept(chunk);
@@ -71,7 +71,7 @@ public interface ChunkManager {
      * @return the {@link ChunkAndClaim#chunkFuture() chunkFuture} and {@link ChunkAndClaim#claim() chunkClaim}
      */
     @ApiStatus.Experimental
-    default @NotNull ChunkAndClaim addClaim(int chunkX, int chunkZ, ClaimType claimType) {
+    default @NotNull ChunkAndClaim addClaim(int chunkX, int chunkZ, @NotNull ClaimType claimType) {
         return addClaim(chunkX, chunkZ, claimType.radius(), claimType.priority());
     }
 
@@ -84,5 +84,5 @@ public interface ChunkManager {
      * @return a future for when the claim was removed.
      * @implNote ideally, the claim is removed as soon as the method returns (the future is already completed), this is not a requirement though.
      */
-    @NotNull CompletableFuture<Void> removeClaim(int chunkX, int chunkZ, ChunkClaim claim);
+    @NotNull CompletableFuture<Void> removeClaim(int chunkX, int chunkZ, @NotNull ChunkClaim claim);
 }
