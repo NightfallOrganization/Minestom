@@ -68,19 +68,23 @@ sealed abstract class InventoryImpl implements Inventory permits ContainerInvent
     public boolean removeViewer(@NotNull Player player) {
         if (!this.viewers.remove(player)) return false;
 
-        ItemStack cursorItem = player.getInventory().getCursorItem();
-        player.getInventory().setCursorItem(ItemStack.AIR);
+        if (!player.openingOtherInventory()) {
+            ItemStack cursorItem = player.getInventory().getCursorItem();
+            player.getInventory().setCursorItem(ItemStack.AIR);
 
-        if (!cursorItem.isAir()) {
-            // Drop the item if it can not be added back to the inventory
-            if (!player.getInventory().addItemStack(cursorItem)) {
-                player.dropItem(cursorItem);
+            if (!cursorItem.isAir()) {
+                // Drop the item if it can not be added back to the inventory
+                if (!player.getInventory().addItemStack(cursorItem)) {
+                    player.dropItem(cursorItem);
+                }
             }
         }
 
         player.clickPreprocessor().clearCache();
         if (player.skipClosePacket()) {
             player.UNSAFE_changeSkipClosePacket(false);
+        } else if (player.openingOtherInventory()) {
+            player.UNSAFE_changeOpeningOtherInventory(false);
         } else {
             player.sendPacket(new CloseWindowPacket(getWindowId()));
         }
