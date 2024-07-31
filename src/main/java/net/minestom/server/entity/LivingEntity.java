@@ -38,17 +38,21 @@ import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.time.Duration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LivingEntity extends Entity implements EquipmentHandler {
 
     private static final AttributeModifier SPRINTING_SPEED_MODIFIER = new AttributeModifier(NamespaceID.from("minecraft:sprinting"), 0.3, AttributeOperation.MULTIPLY_TOTAL);
+
+    /**
+     * IDs of modifiers that are protected from removal by methods like {@link AttributeInstance#clearModifiers()}.
+     */
+    @ApiStatus.Internal
+    public static final Set<NamespaceID> PROTECTED_MODIFIERS = Set.of(SPRINTING_SPEED_MODIFIER.id());
 
     // ItemStack pickup
     protected boolean canPickupItem;
@@ -62,6 +66,8 @@ public class LivingEntity extends Entity implements EquipmentHandler {
     protected BoundingBox expandedBoundingBox;
 
     private final Map<String, AttributeInstance> attributeModifiers = new ConcurrentHashMap<>();
+    private final Collection<AttributeInstance> unmodifiableModifiers =
+            Collections.unmodifiableCollection(attributeModifiers.values());
 
     // Abilities
     protected boolean invulnerable;
@@ -212,9 +218,10 @@ public class LivingEntity extends Entity implements EquipmentHandler {
 
     /**
      * Updates the current attributes of the living entity based on
+     *
      * @param oldItemStack The ItemStack that has been removed, modifiers on this stack will be removed from the entity
      * @param newItemStack The ItemStack that has been added, modifiers on this stack will be added to the entity
-     * @param slot The slot that changed, this will determine what modifiers are actually changed
+     * @param slot         The slot that changed, this will determine what modifiers are actually changed
      */
     @ApiStatus.Internal
     public void updateEquipmentAttributes(@NotNull ItemStack oldItemStack, @NotNull ItemStack newItemStack, @NotNull EquipmentSlot slot) {
@@ -374,7 +381,7 @@ public class LivingEntity extends Entity implements EquipmentHandler {
     /**
      * Damages the entity by a value, the type of the damage also has to be specified.
      *
-     * @param damage  the damage to be applied
+     * @param damage the damage to be applied
      * @return true if damage has been applied, false if it didn't
      */
     public boolean damage(@NotNull Damage damage) {
@@ -496,6 +503,15 @@ public class LivingEntity extends Entity implements EquipmentHandler {
     }
 
     /**
+     * Retrieves all {@link AttributeInstance}s on this entity.
+     *
+     * @return a collection of all attribute instances on this entity
+     */
+    public @NotNull @UnmodifiableView Collection<AttributeInstance> getAttributes() {
+        return unmodifiableModifiers;
+    }
+
+    /**
      * Callback used when an attribute instance has been modified.
      *
      * @param attributeInstance the modified attribute instance
@@ -507,7 +523,12 @@ public class LivingEntity extends Entity implements EquipmentHandler {
             // connection null during Player initialization (due to #super call)
             self = playerConnection != null && playerConnection.getConnectionState() == ConnectionState.PLAY;
         }
-        EntityAttributesPacket propertiesPacket = new EntityAttributesPacket(getEntityId(), List.of(attributeInstance));
+        EntityAttributesPacket propertiesPacket = new EntityAttributesPacket(getEntityId(), List.of(
+                new EntityAttributesPacket.Property(
+                        attributeInstance.attribute(),
+                        attributeInstance.getValue(),
+                        attributeInstance.getModifiers())
+        ));
         if (self) {
             sendPacketToViewersAndSelf(propertiesPacket);
         } else {
@@ -650,7 +671,11 @@ public class LivingEntity extends Entity implements EquipmentHandler {
      * @return an {@link EntityAttributesPacket} linked to this entity
      */
     protected @NotNull EntityAttributesPacket getPropertiesPacket() {
-        return new EntityAttributesPacket(getEntityId(), List.copyOf(attributeModifiers.values()));
+        List<EntityAttributesPacket.Property> properties = new ArrayList<>();
+        for (AttributeInstance instance : attributeModifiers.values()) {
+            properties.add(new EntityAttributesPacket.Property(instance.attribute(), instance.getValue(), instance.getModifiers()));
+        }
+        return new EntityAttributesPacket(getEntityId(), properties);
     }
 
     /**

@@ -375,12 +375,10 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
         this.viewEngine.viewableOption.updateAuto(autoViewable);
     }
 
-    @ApiStatus.Experimental
     public void updateViewableRule(@Nullable Predicate<Player> predicate) {
         this.viewEngine.viewableOption.updateRule(predicate);
     }
 
-    @ApiStatus.Experimental
     public void updateViewableRule() {
         this.viewEngine.viewableOption.updateRule();
     }
@@ -391,7 +389,6 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
      *
      * @return true if surrounding entities are visible by this
      */
-    @ApiStatus.Experimental
     public boolean autoViewEntities() {
         return viewEngine.viewerOption.isAuto();
     }
@@ -401,17 +398,14 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
      *
      * @param autoViewer true to add view surrounding entities, false to remove
      */
-    @ApiStatus.Experimental
     public void setAutoViewEntities(boolean autoViewer) {
         this.viewEngine.viewerOption.updateAuto(autoViewer);
     }
 
-    @ApiStatus.Experimental
     public void updateViewerRule(@Nullable Predicate<Entity> predicate) {
         this.viewEngine.viewerOption.updateRule(predicate);
     }
 
-    @ApiStatus.Experimental
     public void updateViewerRule() {
         this.viewEngine.viewerOption.updateRule();
     }
@@ -1596,7 +1590,6 @@ public class Entity implements Viewable, Tickable, Schedulable, Snapshotable, Ev
     }
 
     @Override
-    @ApiStatus.Experimental
     public @NotNull EventNode<EntityEvent> eventNode() {
         return eventNode;
     }
