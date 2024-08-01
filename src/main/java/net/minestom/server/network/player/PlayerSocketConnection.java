@@ -100,7 +100,6 @@ public class PlayerSocketConnection extends PlayerConnection {
                             return; // Prevent packet corruption
                         ClientPacket packet = null;
                         try {
-                            LOGGER.info("Read packet: {} at {}", Integer.toHexString(id), this.getConnectionState());
                             packet = packetProcessor.process(this, id, payload);
                         } catch (Exception e) {
                             // Error while reading the packet
