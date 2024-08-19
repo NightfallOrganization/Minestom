@@ -24,6 +24,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven("https://nexus.darkcube.eu/repository/dasbabypixel")
     }
 
     configurations.all {
