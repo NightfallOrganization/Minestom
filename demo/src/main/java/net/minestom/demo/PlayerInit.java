@@ -117,15 +117,15 @@ public class PlayerInit {
                 player.setRespawnPoint(new Pos(0, 40f, 0));
             })
             .addListener(PlayerHandAnimationEvent.class, event -> {
-                class A {
-                    static boolean b = false;
-                }
-                if (A.b) {
-                    event.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(NamespaceID.from("test"));
-                } else {
-                    event.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier(NamespaceID.from("test"), 0.5, AttributeOperation.ADD_VALUE));
-                }
-                A.b = !A.b;
+//                class A {
+//                    static boolean b = false;
+//                }
+//                if (A.b) {
+//                    event.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(NamespaceID.from("test"));
+//                } else {
+//                    event.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier(NamespaceID.from("test"), 0.5, AttributeOperation.ADD_VALUE));
+//                }
+//                A.b = !A.b;
             })
 
             .addListener(PlayerSpawnEvent.class, event -> {
