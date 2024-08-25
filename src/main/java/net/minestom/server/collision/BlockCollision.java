@@ -83,7 +83,7 @@ final class BlockCollision {
                                              @NotNull Vec velocity, @NotNull Pos entityPosition,
                                              @NotNull Block.Getter getter, boolean singleCollision) {
         // Allocate once and update values
-        SweepResult finalResult = new SweepResult(1 - Vec.EPSILON, 0, 0, 0, null, 0, 0, 0);
+        SweepResult finalResult = new SweepResult(1 - Vec.EPSILON, 0, 0, 0, null, 0, 0, 0, 0, 0, 0);
 
         boolean foundCollisionX = false, foundCollisionY = false, foundCollisionZ = false;
 
