@@ -185,9 +185,7 @@ public final class ShapeImpl implements Shape {
                 finalResult.collidedPositionX = rayStart.x() + rayDirection.x() * finalResult.res;
                 finalResult.collidedPositionY = rayStart.y() + rayDirection.y() * finalResult.res;
                 finalResult.collidedPositionZ = rayStart.z() + rayDirection.z() * finalResult.res;
-                finalResult.collidedShapeX = shapePos.x();
-                finalResult.collidedShapeY = shapePos.y();
-                finalResult.collidedShapeZ = shapePos.z();
+
                 finalResult.collidedShape = this;
                 hitBlock = true;
             }
