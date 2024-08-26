@@ -3,10 +3,10 @@ package net.minestom.server.collision;
 public final class SweepResult {
     public static SweepResult NO_COLLISION  = new SweepResult(Double.MAX_VALUE, 0, 0, 0, null, 0, 0, 0);
 
-    public double res;
-    public double normalX, normalY, normalZ;
-    public double collidedPositionX, collidedPositionY, collidedPositionZ;
-    public Shape collidedShape;
+    double res;
+    double normalX, normalY, normalZ;
+    double collidedPositionX, collidedPositionY, collidedPositionZ;
+    Shape collidedShape;
 
     /**
      * Store the result of a movement operation
