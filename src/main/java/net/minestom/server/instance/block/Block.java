@@ -27,7 +27,7 @@ import java.util.function.BiPredicate;
 public sealed interface Block extends StaticProtocolObject, TagReadable, Blocks permits BlockImpl {
 
     @NotNull
-    NetworkBuffer.Type<Block> NETWORK_TYPE = NetworkBuffer.VAR_INT.map(Block::fromStateId, Block::stateId);
+    NetworkBuffer.Type<Block> NETWORK_TYPE = NetworkBuffer.VAR_INT.transform(Block::fromStateId, Block::stateId);
 
     /**
      * Creates a new block with the the property {@code property} sets to {@code value}.
@@ -91,6 +91,15 @@ public sealed interface Block extends StaticProtocolObject, TagReadable, Blocks 
      */
     @Contract(pure = true)
     @Nullable CompoundBinaryTag nbt();
+
+    /**
+     * Returns an unmodifiable view of the block nbt or an empty compound.
+     *
+     * @return the block nbt or an empty compound if not present
+     */
+    default @NotNull CompoundBinaryTag nbtOrEmpty() {
+        return Objects.requireNonNullElse(nbt(), CompoundBinaryTag.empty());
+    }
 
     @Contract(pure = true)
     default boolean hasNbt() {

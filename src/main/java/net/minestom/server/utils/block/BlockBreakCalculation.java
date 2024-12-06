@@ -11,9 +11,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.component.Tool;
-import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.registry.Registry;
 import org.jetbrains.annotations.NotNull;
@@ -63,11 +61,11 @@ public class BlockBreakCalculation {
         if (isBestTool) {
             speedMultiplier = getMiningSpeed(tool, block);
 
-            // Also, the wiki's canBreak seems to be this >1
+            // wiki seems to be incorrect here, taken from minecraft's code
             if (speedMultiplier > 1F) {
-                // Wiki tells us about calculations for efficiency, but enchantments don't apply these calculations in minestom.
+                // since data driven enchantments efficiency uses the PLAYER_MINING_EFFICIENCY attribute
                 // If someone wants faster tools, they have to use player attributes or the TOOL component
-                speedMultiplier += (float) player.getAttributeValue(Attribute.PLAYER_MINING_EFFICIENCY);
+                speedMultiplier += (float) player.getAttributeValue(Attribute.MINING_EFFICIENCY);
             }
         } else {
             speedMultiplier = 1;
@@ -82,10 +80,10 @@ public class BlockBreakCalculation {
             speedMultiplier *= getMiningFatigueMultiplier(player);
         }
 
-        speedMultiplier *= (float) player.getAttributeValue(Attribute.PLAYER_BLOCK_BREAK_SPEED);
+        speedMultiplier *= (float) player.getAttributeValue(Attribute.BLOCK_BREAK_SPEED);
 
         if (isInWater(player)) {
-            speedMultiplier *= (float) player.getAttributeValue(Attribute.PLAYER_SUBMERGED_MINING_SPEED);
+            speedMultiplier *= (float) player.getAttributeValue(Attribute.SUBMERGED_MINING_SPEED);
         }
 
         if (!player.isOnGround()) {
@@ -93,7 +91,6 @@ public class BlockBreakCalculation {
         }
 
         double damage = speedMultiplier / blockHardness;
-
 
         if (isBestTool) {
             damage /= 30;
@@ -127,8 +124,8 @@ public class BlockBreakCalculation {
     }
 
     private static float getFluidHeight(Instance instance, int x, int y, int z, Block block) {
-        Block b = instance.getBlock(x, y + 1, z);
-        if (b.id() == block.id()) {
+        Block blockAbove = instance.getBlock(x, y + 1, z);
+        if (blockAbove.id() == block.id()) {
             // Full block if block above is same type
             return 1F;
         }
@@ -150,7 +147,7 @@ public class BlockBreakCalculation {
             // Set the level to 0 for full source block calculation
             level = 0;
         }
-        return level / 9F;
+        return (8 - level) / 9F;
     }
 
     private static float getMiningFatigueMultiplier(@NotNull Player player) {
